@@ -1,5 +1,21 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+
+    <div id="post-view-head">
+    </div>
+
+    <div class="border rounded m-2 p-2" id="compose-post">
+        <h4>New post</h4>
+        <form id="compose-form">
+            {% csrf_token %}
+            <textarea class="form-control mr-2 p-2" id="compose-content" placeholder="What's on your mind?"></textarea>
+            <input type="submit" class="btn btn-primary my-2">
+        </form>
+    </div>
+
+    <div id="posts-view">
+    </div>
+        
+
 {% endblock %}
