@@ -1,14 +1,35 @@
+import json
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 
-from .models import User
+from .models import User, UserInfo, Post
 
 
 def index(request):
     return render(request, "network/index.html")
+
+def compose(request):
+
+    # Composing a new email must be via POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    # Get content of the post
+    data = json.loads(request.body)
+    content = data.get("content")
+    user = User.objects.get(username=request.user)
+    # Create post
+    post = Post(
+        poster=user,
+        content=content
+    )
+
+    post.save()
+    return JsonResponse({"message": "Post created successfully."}, status=201)
 
 
 def login_view(request):
