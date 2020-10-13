@@ -34,6 +34,21 @@ def compose(request):
     post.save()
     return JsonResponse({"message": "Post created successfully."}, status=201)
 
+def posts(request, postview):
+
+    # Get user from request user
+    # user = User.objects.get(username=request.user)
+    
+    # Filter posts returned base on post view
+    if postview == "all":
+        posts = Post.objects.all()
+    else:
+        return JsonResponse({"Error": "Invalid view"}, status=400)
+    
+    # Return posts in reverse chronological order
+    posts = posts.order_by("-timestamp").all()
+    return JsonResponse([post.serialize() for post in posts], safe=False)
+
 
 def login_view(request):
     if request.method == "POST":
