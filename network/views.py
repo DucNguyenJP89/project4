@@ -1,6 +1,7 @@
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
@@ -12,6 +13,8 @@ from .models import User, UserInfo, Post
 def index(request):
     return render(request, "network/index.html")
 
+@csrf_exempt
+@login_required
 def compose(request):
 
     # Composing a new email must be via POST
