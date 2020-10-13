@@ -1,4 +1,5 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
 
@@ -7,7 +8,7 @@
 
     <div class="border rounded m-2 p-2" id="compose-post">
         <h4>New post</h4>
-        <form id="compose-form">
+        <form id="compose-form" method=POST>
             {% csrf_token %}
             <textarea class="form-control mr-2 p-2" id="compose-content" placeholder="What's on your mind?"></textarea>
             <input type="submit" class="btn btn-primary my-2">
@@ -18,4 +19,8 @@
     </div>
         
 
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
 {% endblock %}
