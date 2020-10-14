@@ -35,15 +35,18 @@ def compose(request):
     return JsonResponse({"message": "Post created successfully."}, status=201)
 
 def posts(request, postview):
-
-    # Get user from request user
-    user = User.objects.get(username=request.user)
     
     # Filter posts returned base on post view
     if postview == "all":
         posts = Post.objects.all() 
     elif postview == "following":
+        # Get user from request user
+        user = User.objects.get(username=request.user)
+        
+        # Get following info based on user
         following=UserInfo.objects.filter(user=user).values("following")
+        
+        # Get all posts of following
         posts = Post.objects.filter(poster__in=following)
     else:
         return JsonResponse({"Error": "Invalid view"}, status=400)
