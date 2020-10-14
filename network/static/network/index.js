@@ -1,5 +1,16 @@
-
 document.addEventListener('DOMContentLoaded', function() {
+    // Check exists and add event listener for following link
+    if (document.querySelector('#following')) {
+
+        //Add event listener when clicked
+        document.querySelector('#following').addEventListener('click', function(event) {
+            // Prevent default event
+            event.preventDefault();
+
+            load_posts('following');
+        })
+
+    }
 
     // Check if there is compose view
     if (document.querySelector('#compose-view')) {
