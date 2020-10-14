@@ -88,6 +88,7 @@ function add_post(post) {
 
     // Create new post with poster, content, timestamp
     const newPost = document.createElement('div');
+    newPost.className = 'border rounded m-2 px-2 pt-2';
 
     const newPoster = document.createElement('h5');
     newPoster.innerHTML = `${post.poster}`;
@@ -96,6 +97,7 @@ function add_post(post) {
     newContent.innerHTML = `${post.content}`;
 
     const newTimeStamp = document.createElement('p');
+    newTimeStamp.className = 'time-stamp';
     newTimeStamp.innerHTML = `${post.timestamp}`;
 
     newPost.appendChild(newPoster);
