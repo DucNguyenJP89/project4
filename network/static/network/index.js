@@ -1,24 +1,26 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Check exists and add event listener for following link
+    
+    // Check if there is following-view link
     if (document.querySelector('#following')) {
-
-        //Add event listener when clicked
+        // load following-view when click
         document.querySelector('#following').addEventListener('click', function(event) {
-            // Prevent default event
+
+            // prevent default behavior
             event.preventDefault();
 
+            // Load following-view
             load_posts('following');
         })
 
-    }
+    };
 
     // Check if there is compose view
-    if (document.querySelector('#compose-view')) {
+    if (document.querySelector('#compose-post')) {
         // Clear out field 
         document.querySelector('#compose-content').value = '';
 
         // Add event when submit form
-        document.querySelector('#compose-form').addEventListener('submit', function (event) {
+        document.querySelector('#compose-form').addEventListener('submit', function () {
 
             // Prevent default event
             // event.preventDefault();
@@ -27,25 +29,25 @@ document.addEventListener('DOMContentLoaded', function() {
             const content = document.querySelector('#compose-content').value;
 
             // Add post
-            fetch('compose', {
+            fetch('posts/compose', {
                 method: 'POST', body: JSON.stringify({
                     content: content
                 })
             })
-                .then(response => {
-                    if (response.status !== 201) {
-                        alert("Error: Cannot finish the request.");
-                        console.log("Something wrong!");
-                    } else if (response.status === 201) {
-                        console.log("Success");
-                    }
-                });
+            .then(response => {
+                if (response.status !== 201) {
+                    alert("Error: Cannot finish the request.");
+                    console.log("Something wrong!");
+                } else if (response.status === 201) {
+                    console.log("Success");
+                }
+            });
 
             document.querySelector('#compose-content').value = '';
 
 
         })
-    }
+    };
 
     // Load all posts by default
     load_posts('all');
