@@ -10,6 +10,6 @@ urlpatterns = [
     path("register", views.register, name="register"),
     
     #API route
-    path("compose", views.compose, name="compose"),
+    path("posts/compose", views.compose, name="compose"),
     path("posts/<str:postview>", views.posts, name="posts")
 ]
