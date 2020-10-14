@@ -10,6 +10,20 @@ class UserInfo(models.Model):
     followers = models.ManyToManyField("User", related_name="user_followers")
     following = models.ManyToManyField("User", related_name="user_following")
 
+    def serialize(self):
+        return {
+            "user": self.user.id,
+            "followers": [user.id for user in self.followers.all()],
+            "following": [user.id for user in self.following.all()]
+        }
+    
+    def __str__(self):
+        follower_num = len(self.followers.all())
+        following_num = len(self.followers.all())
+        followers = [user.username for user in self.followers.all()]
+        following = [user.username for user in self.following.all()]
+        return f"{self.user.username} has {follower_num} followers ({followers}) and following {following_num} people ({following})."
+
 class Post(models.Model):
     poster = models.ForeignKey("User", on_delete=models.CASCADE, related_name='user_posting')
     content = models.TextField(blank=False)
