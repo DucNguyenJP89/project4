@@ -19,7 +19,7 @@ class UserInfo(models.Model):
     
     def __str__(self):
         follower_num = len(self.followers.all())
-        following_num = len(self.followers.all())
+        following_num = len(self.following.all())
         followers = [user.username for user in self.followers.all()]
         following = [user.username for user in self.following.all()]
         return f"{self.user.username} has {follower_num} followers ({followers}) and following {following_num} people ({following})."
@@ -42,4 +42,6 @@ class Post(models.Model):
         }
     
     def __str__(self):
-        return f"Post {self.id} by {self.poster.username}."
+        liked = [user.username for user in self.liked.all()]
+        unliked = [user.username for user in self.unliked.all()]
+        return f"Post {self.id} by {self.poster.username}. Liked by {liked} and unliked by {unliked}."
