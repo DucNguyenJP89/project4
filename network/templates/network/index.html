@@ -8,11 +8,11 @@
 
     {% if user.is_authenticated %}
         <div class="border rounded m-2 p-2" id="compose-post">
-            <h4>New post</h4>
+            <h5>New post</h5>
             <form id="compose-form" method=POST>
                 {% csrf_token %}
                 <textarea class="form-control mr-2 p-2" id="compose-content" placeholder="What's on your mind?"></textarea>
-                <input type="submit" class="btn btn-primary my-2">
+                <input type="submit" class="post-button my-2" value="Post">
             </form>
         </div>
     {% endif %}
@@ -21,8 +21,4 @@
     </div>
         
 
-{% endblock %}
-
-{% block script %}
-    <script src="{% static 'network/index.js' %}"></script>
 {% endblock %}
