@@ -50,7 +50,7 @@ def posts(request, postview):
         posts = Post.objects.filter(poster__in=following)
     else:
         return JsonResponse({"Error": "Invalid view"}, status=400)
-    
+        
     # Return posts in reverse chronological order
     posts = posts.order_by("-timestamp").all()
     return JsonResponse([post.serialize() for post in posts], safe=False)
