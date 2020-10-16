@@ -102,6 +102,17 @@ function add_post(post) {
 
     const newPoster = document.createElement('h5');
     newPoster.innerHTML = `${post.poster}`;
+    newPost.appendChild(newPoster);
+
+    // Get logged in user
+    if (document.querySelector('#login-user')) {
+        const loginUser = document.querySelector('#login-user').innerText;
+        if (post.poster === loginUser) {
+            const linkEdit = document.createElement('div');
+            linkEdit.innerHTML = `<a href='#' id="edit-post">Edit</a>`;
+            newPost.appendChild(linkEdit);
+        }
+    };
 
     const newContent = document.createElement('p');
     newContent.innerHTML = `${post.content}`;
@@ -115,7 +126,8 @@ function add_post(post) {
     const numOfLikes = post.liked.length;
     newFavorites.innerHTML = `${numOfLikes} likes`;
 
-    newPost.appendChild(newPoster);
+    
+    
     newPost.appendChild(newContent);
     newPost.appendChild(newFavorites);
     newPost.appendChild(newTimeStamp);
