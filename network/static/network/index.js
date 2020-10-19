@@ -117,12 +117,35 @@ function add_post(post) {
                 editForm.setAttribute('method', 'PUT');
 
                 const editContent = document.createElement('textarea');
+                editContent.setAttribute("id", `edit-post-${post.id}`);
                 editContent.className = 'form-control my-1';
                 editContent.innerHTML = document.querySelector(`#post-${post.id}`).innerHTML;
 
                 const updateButton = document.createElement('button');
                 updateButton.className = 'btn btn-primary btn-sm my-1';
                 updateButton.innerHTML = 'Update';
+                updateButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    // update post content
+                    const content = document.querySelector(`#edit-post-${post.id}`).value;
+                    fetch(`posts/${post.id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            content: content
+                        })
+                    })
+                    .then(response => console.log(response.status));
+
+                    // update post view
+                    editForm.style.display = 'none';
+                    newContent.style.display = 'block';
+                    newContent.innerHTML = content;
+
+                    return false;
+
+                })
 
                 const closeButton = document.createElement('button');
                 closeButton.className = 'btn btn-outline-secondary btn-sm ml-1 my-1';
