@@ -55,6 +55,33 @@ def posts(request, postview):
     posts = posts.order_by("-timestamp").all()
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
+@csrf_exempt
+@login_required
+def post_info(request, post_id):
+    
+    user = User.objects.get(username=request.user)
+    # Query for requested email
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found"}, status=404)
+    # Return post content
+    if request.method == "GET":
+        return JsonResponse(post.serialize())
+
+    # Update post content or favorite
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        if data.get("content") is not None:
+            if post.poster != user:
+                return JsonResponse({"error": "You have no permission to edit this post"}, status=403)
+            elif post.poster == request.user:
+                post.content = data["content"]
+        post.save()
+        return HttpResponse(status=204)
+    else:
+        return JsonResponse({"error": "GET or PUT request required"}, status=400)
+
 
 def login_view(request):
     if request.method == "POST":
