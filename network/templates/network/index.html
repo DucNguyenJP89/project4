@@ -9,7 +9,7 @@
     {% if user.is_authenticated %}
         <div class="border rounded m-2 p-2" id="compose-post">
             <h5>New post</h5>
-            <form id="compose-form" method=POST>
+            <form id="compose-form" method="POST">
                 {% csrf_token %}
                 <textarea class="form-control mr-2 p-2" id="compose-content" placeholder="What's on your mind?"></textarea>
                 <input type="submit" class="post-button my-2" value="Post">
