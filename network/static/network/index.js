@@ -108,13 +108,47 @@ function add_post(post) {
     if (document.querySelector('#login-user')) {
         const loginUser = document.querySelector('#login-user').innerText;
         if (post.poster === loginUser) {
-            const linkEdit = document.createElement('div');
-            linkEdit.innerHTML = `<a href='#' id="edit-post">Edit</a>`;
+            const linkEdit = document.createElement('button');
+            linkEdit.className = 'edit-button btn btn-outline-primary btn-sm';
+            linkEdit.innerHTML = 'Edit';
+            linkEdit.addEventListener('click', () => {
+                // Create form to edit
+                const editForm = document.createElement('form');
+                editForm.setAttribute('method', 'PUT');
+
+                const editContent = document.createElement('textarea');
+                editContent.className = 'form-control my-1';
+                editContent.innerHTML = document.querySelector(`#post-${post.id}`).innerHTML;
+
+                const updateButton = document.createElement('button');
+                updateButton.className = 'btn btn-primary btn-sm my-1';
+                updateButton.innerHTML = 'Update';
+
+                const closeButton = document.createElement('button');
+                closeButton.className = 'btn btn-outline-secondary btn-sm ml-1 my-1';
+                closeButton.innerHTML = 'Close';
+                closeButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+
+                    editForm.style.display = 'none';
+                    newContent.style.display = 'block';
+
+                    return false;
+                })
+
+                editForm.appendChild(editContent);
+                editForm.appendChild(updateButton);
+                editForm.appendChild(closeButton);
+
+                newPost.appendChild(editForm);
+                newContent.style.display = 'none';
+            })
             newPost.appendChild(linkEdit);
         }
     };
 
     const newContent = document.createElement('p');
+    newContent.setAttribute ("id", `post-${post.id}`);
     newContent.innerHTML = `${post.content}`;
 
     const newTimeStamp = document.createElement('p');
