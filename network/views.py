@@ -77,6 +77,12 @@ def post_info(request, post_id):
                 return JsonResponse({"error": "You have no permission to edit this post"}, status=403)
             elif post.poster == request.user:
                 post.content = data["content"]
+        if data.get("liked") is not None:
+            post_info = post.serialize()
+            if user.username in post_info["liked"]:
+                post.liked.remove(user)
+            elif user.username not in post_info["liked"]:
+                post.liked.add(user)
         post.save()
         return HttpResponse(status=204)
     else:

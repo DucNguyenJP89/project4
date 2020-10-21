@@ -178,12 +178,64 @@ function add_post(post) {
     newTimeStamp.className = 'time-stamp';
     newTimeStamp.innerHTML = `${post.timestamp}`;
 
+    // Create liked view
+    // Including clickable like-icon and like-count 
     const newFavorites = document.createElement('div');
-    newFavorites.className = 'liked';
-    const numOfLikes = post.liked.length;
-    newFavorites.innerHTML = `${numOfLikes} likes`;
-
     
+    // Create like-icon
+    const likeIcon = document.createElement('div');
+    likeIcon.className = 'd-inline';
+    likeIcon.setAttribute('id', `like-icon-post-${post.id}`);
+    // Create like-count
+    const likeCount = document.createElement('div');
+    likeCount.setAttribute('id', `like-count-post-${post.id}`);
+    likeCount.className = 'd-inline ml-1';
+    let numCount = post.liked.length;
+    likeCount.innerHTML = `${numCount}`;
+    
+    // Control display 
+    if (!document.querySelector('#login-user')) {
+        likeIcon.setAttribute('disabled', 'disabled');
+    } else if (document.querySelector('#login-user')) {
+        const loginUser = document.querySelector('#login-user').innerText;
+        if (post.liked.indexOf(loginUser) >= 0) {
+            likeIcon.innerHTML = `<i class="fa fa-heart"></i>`;
+        } else {
+            likeIcon.innerHTML = `<i class="fa fa-heart-o"></i>`;
+        }
+    }
+
+    likeIcon.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        fetch(`posts/${post.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                liked: "liked"
+            })
+        })
+        .then(response => console.log(response.status));
+
+        if (likeIcon.innerHTML === `<i class="fa fa-heart"></i>`) {
+            likeIcon.innerHTML = `<i class="fa fa-heart-o"></i>`;
+            if (numCount !== 0) {
+                numCount -= 1;
+            } 
+        } else if (likeIcon.innerHTML === `<i class="fa fa-heart-o"></i>`) {
+            likeIcon.innerHTML = `<i class="fa fa-heart"></i>`;
+            numCount += 1;
+        }
+        // Update number of likes 
+        likeCount.innerHTML = `${numCount}`;
+        
+        return false;
+    })
+
+    // Add icon and count to favorites
+    newFavorites.appendChild(likeIcon);
+    newFavorites.appendChild(likeCount);
+
     
     newPost.appendChild(newContent);
     newPost.appendChild(newFavorites);
@@ -193,3 +245,4 @@ function add_post(post) {
     document.querySelector('#posts-view').append(newPost);
 
 }
+
