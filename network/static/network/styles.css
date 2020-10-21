@@ -42,3 +42,13 @@ body {
 #post-view-head {
     color: #027368;
 }
+
+.fa {
+    color: red;
+    font-size: 15px;
+    user-select: none;
+}
+
+.fa:hover {
+    opacity: 0.8;
+}
