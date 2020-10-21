@@ -36,8 +36,8 @@ class Post(models.Model):
             "id": self.id,
             "poster": self.poster.username,
             "content": self.content,
-            "liked": [user.id for user in self.liked.all()],
-            "unliked": [user.id for user in self.unliked.all()],
+            "liked": [user.username for user in self.liked.all()],
+            "unliked": [user.username for user in self.unliked.all()],
             "timestamp": self.timestamp.strftime("%b %-d %Y, %_I:%M %p")
         }
     
