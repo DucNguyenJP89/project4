@@ -88,6 +88,28 @@ def post_info(request, post_id):
     else:
         return JsonResponse({"error": "GET or PUT request required"}, status=400)
 
+@csrf_exempt
+def user_info(request, username):
+    
+    # Query for requested user
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found."}, status=404)
+
+    # Get user info: follow info and all posts
+    if request.method == "GET":
+        # Query for request user info
+        try:
+            user_info = UserInfo.objects.get(user=user)
+            user_info = user_info.serialize()
+        except UserInfo.DoesNotExist:
+            user_info = {"following": [], "followers": []}
+        # Get all posts of user
+        posts = Post.objects.filter(poster=user)
+        posts = posts.order_by("-timestamp").all()
+        
+        return JsonResponse({"info": user_info, "posts": [post.serialize() for post in posts]}, safe=False)
 
 def login_view(request):
     if request.method == "POST":
