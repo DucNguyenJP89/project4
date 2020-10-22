@@ -13,8 +13,8 @@ class UserInfo(models.Model):
     def serialize(self):
         return {
             "user": self.user.id,
-            "followers": [user.id for user in self.followers.all()],
-            "following": [user.id for user in self.following.all()]
+            "followers": [user.username for user in self.followers.all()],
+            "following": [user.username for user in self.following.all()]
         }
     
     def __str__(self):
