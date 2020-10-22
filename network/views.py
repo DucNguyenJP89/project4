@@ -157,6 +157,11 @@ def register(request):
             return render(request, "network/register.html", {
                 "message": "Username already taken."
             })
+        # Add user info data as well
+        user = User.objects.get(username=username)
+        user_info = UserInfo(user=user)
+        user_info.save()
+        
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
