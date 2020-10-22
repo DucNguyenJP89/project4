@@ -235,12 +235,12 @@ function add_post(post) {
 
             if (likeIcon.innerHTML === `<i class="fa fa-heart"></i>`) {
                 likeIcon.innerHTML = `<i class="fa fa-heart-o"></i>`;
-                if (numCount !== 0) {
-                    numCount -= 1;
+                if (numCount > 0) {
+                    numCount--;
                 } 
             } else if (likeIcon.innerHTML === `<i class="fa fa-heart-o"></i>`) {
                 likeIcon.innerHTML = `<i class="fa fa-heart"></i>`;
-                numCount += 1;
+                numCount++;
             }
             // Update number of likes 
             likeCount.innerHTML = `${numCount}`;
@@ -274,8 +274,8 @@ function load_user(username) {
     .then(info => {
         
         // Get following and followers count
-        const followingCount = info.info.following.length;
-        const followerCount = info.info.followers.length;
+        let followingCount = info.info.following.length;
+        let followerCount = info.info.followers.length;
 
         // Create user info view
         const userInfo = document.createElement('div');
@@ -286,9 +286,58 @@ function load_user(username) {
         const userFollowing = document.createElement('div');
         userFollowing.className = 'd-inline ml-2';
         userFollowing.innerHTML = `${followingCount} Following`;
+        
+        // Add follow button
+        const followButton = document.createElement('button');
+            // Control button label
+            if (!document.querySelector('#login-user')) {
+                followButton.style.display = 'none';
+            } else {
+                const loginUser = document.querySelector('#login-user').innerText; 
+                if (loginUser === username) {
+                    followButton.style.display = 'none';
+                } else if (info.info.followers.indexOf(loginUser) >= 0) {
+                    followButton.className = 'btn btn-primary btn-sm ml-4 mb-2';
+                    followButton.innerText = 'Following';
+                } else {
+                    followButton.className = 'btn btn-outline-primary btn-sm ml-4 mb-2';
+                    followButton.innerText = 'Follow';
+                }
+            }
+        // add event when click button
+        followButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            fetch(`user/${username}`, {
+                method: 'PUT', 
+                body: JSON.stringify({
+                    follow: "follow"
+                })
+            })
+            .then(response => console.log(response.status));
+
+            // Update follower count
+            if (followButton.innerText === 'Follow') {
+                followButton.className = 'btn btn-primary btn-sm ml-4 mb-2';
+                followButton.innerText = 'Following';
+                followerCount++;
+            } else if (followButton.innerText === 'Following') {
+                if (followerCount > 0) {
+                    followButton.className = 'btn btn-outline-primary btn-sm ml-4 mb-2';
+                    followButton.innerText = 'Follow';
+                    followerCount--;
+                }
+            }
+            userFollowers.innerHTML = `${followerCount} Followers`;
+
+            return false;
+            
+        })
 
         userInfo.appendChild(userFollowers);
         userInfo.appendChild(userFollowing);
+        userInfo.appendChild(followButton);
 
         // Add user info to post-view
         document.querySelector('#posts-view').append(userInfo);
