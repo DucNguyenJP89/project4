@@ -91,25 +91,53 @@ def post_info(request, post_id):
 @csrf_exempt
 def user_info(request, username):
     
-    # Query for requested user
+    # Query for following user
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return JsonResponse({"error": "User not found."}, status=404)
+    
+    # Query for request user info
+    try:
+        user_info = UserInfo.objects.get(user=user)
+    except UserInfo.DoesNotExist:
+        user_info = {"following": [], "followers": []}
 
     # Get user info: follow info and all posts
     if request.method == "GET":
-        # Query for request user info
-        try:
-            user_info = UserInfo.objects.get(user=user)
-            user_info = user_info.serialize()
-        except UserInfo.DoesNotExist:
-            user_info = {"following": [], "followers": []}
         # Get all posts of user
         posts = Post.objects.filter(poster=user)
         posts = posts.order_by("-timestamp").all()
         
-        return JsonResponse({"info": user_info, "posts": [post.serialize() for post in posts]}, safe=False)
+        return JsonResponse({"info": user_info.serialize(), "posts": [post.serialize() for post in posts]}, safe=False)
+    
+    if request.method == "PUT":
+        
+        # Get request user info
+        request_user = User.objects.get(username=request.user)
+        request_user_info = UserInfo.objects.get(user=request_user)
+
+        # user cannot follow himself
+        if request.user == username:
+            return JsonResponse({"error": "You cannot follow yourself"}, status=403)
+        
+        data = json.loads(request.body)
+        if data.get("follow") is not None:
+            user_follow = user_info.serialize()
+            if request.user in user_follow["followers"]:
+                user_info.followers.remove(request_user)
+                request_user_info.following.remove(user)
+            elif request.user not in user_follow["followers"]:
+                user_info.followers.add(request_user)
+                request_user_info.following.add(user)
+        
+        user_info.save()
+        request_user_info.save()
+        return HttpResponse(status=204)
+    
+    else:
+        return JsonResponse({"error": "GET or PUT request required"}, status=400)
+
 
 def login_view(request):
     if request.method == "POST":
@@ -161,7 +189,7 @@ def register(request):
         user = User.objects.get(username=username)
         user_info = UserInfo(user=user)
         user_info.save()
-        
+
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
