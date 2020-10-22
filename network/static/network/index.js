@@ -86,6 +86,8 @@ function load_posts(postview) {
     // Hide form if it is not "all" view
     if (`${postview}` !== 'all') {
         document.querySelector('#compose-post').style.display = 'none';
+    } else if (`${postview}` === 'all' && document.querySelector('#login-user')) {
+        document.querySelector('#compose-post').style.display = 'block';
     }
 
     // Show the view name
