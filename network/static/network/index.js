@@ -102,6 +102,15 @@ function add_post(post) {
 
     const newPoster = document.createElement('h5');
     newPoster.innerHTML = `${post.poster}`;
+    newPoster.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        load_user(`${post.poster}`);
+
+        return false;
+
+    })
     newPost.appendChild(newPoster);
 
     // Get logged in user
@@ -243,6 +252,51 @@ function add_post(post) {
 
     // Add new post to post view
     document.querySelector('#posts-view').append(newPost);
+
+}
+
+function load_user(username) {
+
+    // Clear the view before loading new view
+    document.querySelector('#posts-view').innerHTML = '';
+
+    // Get user info to add to view
+    fetch(`user/${username}`)
+    .then(response => response.json())
+    .then(info => {
+        
+        // Get following and followers count
+        const followingCount = info.info.following.length;
+        const followerCount = info.info.followers.length;
+
+        // Create user info view
+        const userInfo = document.createElement('div');
+        userInfo.className = 'border rounded m-2 px-2 pt-2';
+        const userFollowers = document.createElement('div');
+        userFollowers.className = 'd-inline';
+        userFollowers.innerHTML = `${followerCount} Followers`;
+        const userFollowing = document.createElement('div');
+        userFollowing.className = 'd-inline ml-2';
+        userFollowing.innerHTML = `${followingCount} Following`;
+
+        userInfo.appendChild(userFollowers);
+        userInfo.appendChild(userFollowing);
+
+        // Add user info to post-view
+        document.querySelector('#posts-view').append(userInfo);
+
+        // Add posts to post-view
+        info.posts.forEach(add_post);
+    
+    })
+
+    // Hide compose-form
+    if (document.querySelector('#compose-post')) {
+        document.querySelector('#compose-post').style.display = 'none';
+    }
+
+    // Show 
+    document.querySelector('#post-view-head').innerHTML = `<h3 class='m-2 p-2'>User: ${username}</h3>`;
 
 }
 
