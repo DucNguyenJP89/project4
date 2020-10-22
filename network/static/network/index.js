@@ -86,9 +86,8 @@ function load_posts(postview) {
     // Hide form if it is not "all" view
     if (`${postview}` !== 'all') {
         document.querySelector('#compose-post').style.display = 'none';
-    } else {
-        document.querySelector('#compose-post').style.display = 'block';
     }
+
     // Show the view name
     document.querySelector('#post-view-head').innerHTML = `<h3 class='m-2 p-2'>${postview.charAt(0).toUpperCase() + postview.slice(1)} Posts</h3>`;  
 
@@ -204,7 +203,8 @@ function add_post(post) {
     
     // Control display 
     if (!document.querySelector('#login-user')) {
-        likeIcon.setAttribute('disabled', 'disabled');
+        likeIcon.disabled = true;
+        likeIcon.innerHTML = `<i class="fa fa-heart-o"></i>`;
     } else if (document.querySelector('#login-user')) {
         const loginUser = document.querySelector('#login-user').innerText;
         if (post.liked.indexOf(loginUser) >= 0) {
@@ -217,26 +217,32 @@ function add_post(post) {
     likeIcon.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
-
-        fetch(`posts/${post.id}`, {
-            method: 'PUT',
-            body: JSON.stringify({
-                liked: "liked"
+        
+        // If disabled true, alert and do nothing
+        if (likeIcon.disabled) {
+            alert('Only login user can like');
+        } else {
+        
+            fetch(`posts/${post.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    liked: "liked"
+                })
             })
-        })
-        .then(response => console.log(response.status));
+            .then(response => console.log(response.status));
 
-        if (likeIcon.innerHTML === `<i class="fa fa-heart"></i>`) {
-            likeIcon.innerHTML = `<i class="fa fa-heart-o"></i>`;
-            if (numCount !== 0) {
-                numCount -= 1;
-            } 
-        } else if (likeIcon.innerHTML === `<i class="fa fa-heart-o"></i>`) {
-            likeIcon.innerHTML = `<i class="fa fa-heart"></i>`;
-            numCount += 1;
+            if (likeIcon.innerHTML === `<i class="fa fa-heart"></i>`) {
+                likeIcon.innerHTML = `<i class="fa fa-heart-o"></i>`;
+                if (numCount !== 0) {
+                    numCount -= 1;
+                } 
+            } else if (likeIcon.innerHTML === `<i class="fa fa-heart-o"></i>`) {
+                likeIcon.innerHTML = `<i class="fa fa-heart"></i>`;
+                numCount += 1;
+            }
+            // Update number of likes 
+            likeCount.innerHTML = `${numCount}`;
         }
-        // Update number of likes 
-        likeCount.innerHTML = `${numCount}`;
         
         return false;
     })
