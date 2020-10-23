@@ -1,5 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     
+    // Load login user info if logged in
+    if (document.querySelector('#login-user')) {
+        const loginUser = document.querySelector('#login-user');
+        loginUser.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            load_user(`${loginUser.innerText}`);
+            return false;
+        })
+    } 
+
     // Load all posts view when click the link
     document.querySelector('#all').addEventListener('click', function(event) {
         event.preventDefault();
@@ -353,7 +364,7 @@ function load_user(username) {
     }
 
     // Show 
-    document.querySelector('#post-view-head').innerHTML = `<h3 class='m-2 p-2'>User: ${username}</h3>`;
+    document.querySelector('#post-view-head').innerHTML = `<h3 class='m-2 p-2'>${username}'s Profile</h3>`;
 
 }
 
