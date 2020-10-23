@@ -290,7 +290,7 @@ function load_user(username) {
 
         // Create user info view
         const userInfo = document.createElement('div');
-        userInfo.className = 'border rounded m-2 px-2 pt-2';
+        userInfo.className = 'border rounded m-2 px-2 py-2';
         const userFollowers = document.createElement('div');
         userFollowers.className = 'd-inline';
         userFollowers.innerHTML = `${followerCount} Followers`;
@@ -348,7 +348,9 @@ function load_user(username) {
 
         userInfo.appendChild(userFollowers);
         userInfo.appendChild(userFollowing);
-        userInfo.appendChild(followButton);
+        
+        // Add button to head-view
+        document.querySelector('#post-view-head').appendChild(followButton);
 
         // Add user info to post-view
         document.querySelector('#posts-view').append(userInfo);
@@ -364,7 +366,7 @@ function load_user(username) {
     }
 
     // Show 
-    document.querySelector('#post-view-head').innerHTML = `<h3 class='m-2 p-2'>${username}'s Profile</h3>`;
+    document.querySelector('#post-view-head').innerHTML = `<h3 class='d-inline ml-2'>${username}'s Profile</h3>`;
 
 }
 
