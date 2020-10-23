@@ -124,10 +124,10 @@ def user_info(request, username):
         data = json.loads(request.body)
         if data.get("follow") is not None:
             user_follow = user_info.serialize()
-            if request.user in user_follow["followers"]:
+            if request_user.username in user_follow["followers"]:
                 user_info.followers.remove(request_user)
                 request_user_info.following.remove(user)
-            elif request.user not in user_follow["followers"]:
+            elif request_user.username not in user_follow["followers"]:
                 user_info.followers.add(request_user)
                 request_user_info.following.add(user)
         
