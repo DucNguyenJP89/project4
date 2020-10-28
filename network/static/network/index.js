@@ -80,6 +80,10 @@ function load_posts(postview) {
     // Clear the view before loading new view
     document.querySelector('#posts-view').innerHTML = '';
 
+    // Hide pagination of userview
+    document.querySelector('#u-pagination').style.display = 'none';
+    document.querySelector('#p-pagination').style.display = 'block';
+
     // Get posts and add posts to post view
     fetch(`posts/${postview}`)
     .then(response => response.json())
@@ -124,7 +128,7 @@ function add_post(post) {
     newPoster.innerHTML = `${post.poster}`;
     newPoster.addEventListener('click', (event) => {
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
 
         load_user(`${post.poster}`);
 
@@ -287,6 +291,10 @@ function load_user(username) {
     // Clear the view before loading new view
     document.querySelector('#posts-view').innerHTML = '';
 
+    // Hide pagination of posts view
+    document.querySelector('#u-pagination').style.display = 'block';
+    document.querySelector('#p-pagination').style.display = 'none';
+
     // Get user info to add to view
     fetch(`user/${username}`)
     .then(response => response.json())
@@ -359,12 +367,17 @@ function load_user(username) {
         
         // Add button to head-view
         document.querySelector('#post-view-head').appendChild(followButton);
+        document.querySelector('#post-view-head').appendChild(userInfo);
 
         // Add user info to post-view
-        document.querySelector('#posts-view').append(userInfo);
+        //document.querySelector('#posts-view').append(userInfo);
 
         // Add posts to post-view
         info.posts.forEach(add_post);
+
+        // Add pagination
+        const pageInfo = info['paging_info']
+        user_pagination(pageInfo, username);
     
     })
 
@@ -411,7 +424,7 @@ function add_pagination(pageInfo, postview) {
         console.log('previous link was clicked');
 
         document.querySelector('#posts-view').innerHTML = '';
-
+ 
         fetch(`posts/${postview}`, {
             method: 'POST',
             body: JSON.stringify({
@@ -420,7 +433,7 @@ function add_pagination(pageInfo, postview) {
         })
         .then(response => response.json())
         .then(posts => {
-            
+
             console.log(`Loaded page ${posts.info['current']} of ${posts.info['pages']}.`)
             // Load posts of current page
             posts.posts.forEach(add_post);
@@ -448,7 +461,6 @@ function add_pagination(pageInfo, postview) {
         // Update current page
         document.querySelector('#current').innerHTML = `Page ${currentPage} of ${totalPages}`;
 
-
         return false;
     })
 
@@ -460,6 +472,7 @@ function add_pagination(pageInfo, postview) {
 
         document.querySelector('#posts-view').innerHTML = '';
 
+        
         fetch(`posts/${postview}`, {
             method: 'POST',
             body: JSON.stringify({
@@ -468,12 +481,12 @@ function add_pagination(pageInfo, postview) {
         })
         .then(response => response.json())
         .then(posts => {
-            
+                
             console.log(`Loaded page ${posts.info['current']} of ${posts.info['pages']}.`)
             // Load posts of current page
             posts.posts.forEach(add_post);
         })
-
+        
         // Update value
         currentPage++;
         nextPage++;
@@ -499,4 +512,127 @@ function add_pagination(pageInfo, postview) {
         return false;
     })
 }
+
+function user_pagination(pageInfo, username) {
+    
+    // Init value
+    const totalPages = parseInt(pageInfo['pages']);
+    let currentPage = parseInt(pageInfo['current']);
+    let previousPage = 0;
+    let nextPage = parseInt(pageInfo['next_number']);
+
+    // Handle previous view
+    if (pageInfo['flg_previous'] === false) {
+        document.querySelector('#u-previous').style.display = 'none';
+    } else if (pageInfo['flg_previous'] === true) {
+        document.querySelector('#u-previous').style.display = 'inline-block';
+    }
+
+    // Handle next view
+    if (pageInfo['flg_next'] === false) {
+        document.querySelector('#u-next').style.display = 'none';
+    } else if (pageInfo['flg_next'] === true) {
+        document.querySelector('#u-next').style.display = 'inline-block';
+    }
+
+    // Handle current view
+    document.querySelector('#u-current').innerHTML = `Page ${currentPage} of ${totalPages}`;
+
+    // Add event for previous and next link
+    document.querySelector('#u-previous').addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        console.log('previous link was clicked');
+
+        document.querySelector('#posts-view').innerHTML = '';
+
+        fetch(`user/${username}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                page_number: previousPage
+            })
+        })
+        .then(response => response.json())
+        .then(posts => {
+
+            console.log(`Loaded page ${posts['paging_info']['current']} of ${posts['paging_info']['pages']}.`)
+            // Load posts of current page
+            posts.posts.forEach(add_post);
+        })
+
+        // Update value
+        currentPage--;
+        nextPage--;
+        previousPage--;
+
+        // Hide next link if current page is equal or greater than total pages
+        if (currentPage >= totalPages) {
+            document.querySelector('#u-next').style.display = 'none';
+        } else {
+            document.querySelector('#u-next').style.display = 'inline-block';
+        }
+
+        // Hide previous link if current page is equal or less than 1
+        if (currentPage <= 1) {
+            document.querySelector('#u-previous').style.display = 'none';
+        } else {
+            document.querySelector('#u-previous').style.display = 'inline-block';
+        }
+
+        // Update current page
+        document.querySelector('#u-current').innerHTML = `Page ${currentPage} of ${totalPages}`;
+
+        return false;
+    })
+
+    document.querySelector('#u-next').addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        console.log('next link was clicked');
+
+        document.querySelector('#posts-view').innerHTML = '';
+
+        
+        fetch(`user/${username}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                page_number: nextPage
+            })
+        })
+        .then(response => response.json())
+        .then(posts => {
+                
+            console.log(`Loaded page ${posts['paging_info']['current']} of ${posts['paging_info']['pages']}.`)
+            // Load posts of current page
+            posts.posts.forEach(add_post);
+        })
+        
+        // Update value
+        currentPage++;
+        nextPage++;
+        previousPage++;
+
+        // Hide next link if current page is equal or greater than total pages
+        if (currentPage >= totalPages) {
+            document.querySelector('#u-next').style.display = 'none';
+        } else {
+            document.querySelector('#u-next').style.display = 'inline-block';
+        }
+
+        // Hide previous link if current page is equal or less than 1
+        if (currentPage <= 1) {
+            document.querySelector('#u-previous').style.display = 'none';
+        } else {
+            document.querySelector('#u-previous').style.display = 'inline-block';
+        }
+
+        // Update current page
+        document.querySelector('#u-current').innerHTML = `Page ${currentPage} of ${totalPages}`;
+
+        return false;
+    })
+}
+
 
