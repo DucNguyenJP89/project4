@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const loginUser = document.querySelector('#login-user');
         loginUser.addEventListener('click', function(event) {
             event.preventDefault();
-            
+            event.stopImmediatePropagation();
+
             load_user(`${loginUser.innerText}`);
             return false;
         })
@@ -14,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load all posts view when click the link
     document.querySelector('#all').addEventListener('click', function(event) {
         event.preventDefault();
+        event.stopImmediatePropagation();
+
         load_posts('all');
         return false;
     })
@@ -23,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // load following-view when click
         document.querySelector('#following').addEventListener('click', (event) => {
             event.preventDefault();
+            event.stopImmediatePropagation();
             // Load following-view
             load_posts('following');
             return false;
@@ -90,7 +94,11 @@ function load_posts(postview) {
             // Add to view
             document.querySelector('#posts-view').append(noPost);
         } else {
-            posts.forEach(add_post);
+            const pageInfo = posts.info;
+            // Handle pagination
+            add_pagination(pageInfo, postview);
+            // Load posts of page 1
+            posts.posts.forEach(add_post);
         }
     })
 
@@ -368,5 +376,127 @@ function load_user(username) {
     // Show 
     document.querySelector('#post-view-head').innerHTML = `<h3 class='d-inline ml-2'>${username}'s Profile</h3>`;
 
+}
+
+function add_pagination(pageInfo, postview) {
+
+    // Init value
+    const totalPages = parseInt(pageInfo['pages']);
+    let currentPage = parseInt(pageInfo['current']);
+    let previousPage = 0;
+    let nextPage = parseInt(pageInfo['next_number']);
+
+    // Handle previous view
+    if (pageInfo['flg_previous'] === false) {
+        document.querySelector('#previous').style.display = 'none';
+    } else if (pageInfo['flg_previous'] === true) {
+        document.querySelector('#previous').style.display = 'inline-block';
+    }
+
+    // Handle next view
+    if (pageInfo['flg_next'] === false) {
+        document.querySelector('#next').style.display = 'none';
+    } else if (pageInfo['flg_next'] === true) {
+        document.querySelector('#next').style.display = 'inline-block';
+    }
+
+    // Handle current view
+    document.querySelector('#current').innerHTML = `Page ${currentPage} of ${totalPages}`;
+    
+    // Add event for previous and next link
+    document.querySelector('#previous').addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        console.log('previous link was clicked');
+
+        document.querySelector('#posts-view').innerHTML = '';
+
+        fetch(`posts/${postview}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                page_number: previousPage
+            })
+        })
+        .then(response => response.json())
+        .then(posts => {
+            
+            console.log(`Loaded page ${posts.info['current']} of ${posts.info['pages']}.`)
+            // Load posts of current page
+            posts.posts.forEach(add_post);
+        })
+
+        // Update value
+        currentPage--;
+        nextPage--;
+        previousPage--;
+
+        // Hide next link if current page is equal or greater than total pages
+        if (currentPage >= totalPages) {
+            document.querySelector('#next').style.display = 'none';
+        } else {
+            document.querySelector('#next').style.display = 'inline-block';
+        }
+
+        // Hide previous link if current page is equal or less than 1
+        if (currentPage <= 1) {
+            document.querySelector('#previous').style.display = 'none';
+        } else {
+            document.querySelector('#previous').style.display = 'inline-block';
+        }
+
+        // Update current page
+        document.querySelector('#current').innerHTML = `Page ${currentPage} of ${totalPages}`;
+
+
+        return false;
+    })
+
+    document.querySelector('#next').addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        console.log('next link was clicked');
+
+        document.querySelector('#posts-view').innerHTML = '';
+
+        fetch(`posts/${postview}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                page_number: nextPage
+            })
+        })
+        .then(response => response.json())
+        .then(posts => {
+            
+            console.log(`Loaded page ${posts.info['current']} of ${posts.info['pages']}.`)
+            // Load posts of current page
+            posts.posts.forEach(add_post);
+        })
+
+        // Update value
+        currentPage++;
+        nextPage++;
+        previousPage++;
+
+        // Hide next link if current page is equal or greater than total pages
+        if (currentPage >= totalPages) {
+            document.querySelector('#next').style.display = 'none';
+        } else {
+            document.querySelector('#next').style.display = 'inline-block';
+        }
+
+        // Hide previous link if current page is equal or less than 1
+        if (currentPage <= 1) {
+            document.querySelector('#previous').style.display = 'none';
+        } else {
+            document.querySelector('#previous').style.display = 'inline-block';
+        }
+
+        // Update current page
+        document.querySelector('#current').innerHTML = `Page ${currentPage} of ${totalPages}`;
+
+        return false;
+    })
 }
 

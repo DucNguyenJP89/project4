@@ -6,6 +6,7 @@ from django.db import IntegrityError
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
+from django.core.paginator import Paginator
 
 from .models import User, UserInfo, Post
 
@@ -34,6 +35,7 @@ def compose(request):
     post.save()
     return JsonResponse({"message": "Post created successfully."}, status=201)
 
+@csrf_exempt
 def posts(request, postview):
     
     # Filter posts returned base on post view
@@ -53,7 +55,41 @@ def posts(request, postview):
         
     # Return posts in reverse chronological order
     posts = posts.order_by("-timestamp").all()
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+    post_paging = Paginator(posts, 10)
+    num_pages = post_paging.num_pages
+
+    # Get current page
+    if request.method == "GET":
+        page_number = 1
+    elif request.method == "POST":
+        data = json.loads(request.body)
+        page_number = data.get('page_number')
+    
+    current_page = post_paging.get_page(page_number)
+    flg_previous = current_page.has_previous()
+    flg_next = current_page.has_next()
+
+    # Return based on flg
+    if flg_previous == True:
+        previous_number = current_page.previous_page_number()
+    else:
+        previous_number = None
+    
+    if flg_next == True:
+        next_number = current_page.next_page_number()
+    else:
+        next_number = None
+
+    paging_info = {
+        "pages": num_pages,
+        "current": page_number,
+        "flg_previous": flg_previous, 
+        "previous_number": previous_number,
+        "flg_next": flg_next,
+        "next_number": next_number
+        }
+
+    return JsonResponse({"info": paging_info, "posts": [contact.serialize() for contact in current_page]}, safe=False)
 
 @csrf_exempt
 @login_required
