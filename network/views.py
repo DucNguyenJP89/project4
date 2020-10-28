@@ -139,14 +139,46 @@ def user_info(request, username):
     except UserInfo.DoesNotExist:
         user_info = {"following": [], "followers": []}
 
-    # Get user info: follow info and all posts
-    if request.method == "GET":
-        # Get all posts of user
-        posts = Post.objects.filter(poster=user)
-        posts = posts.order_by("-timestamp").all()
+    # Return posts in reverse chronological order
+    posts = Post.objects.filter(poster=user)
+    posts = posts.order_by("-timestamp").all()
+    post_paging = Paginator(posts, 10)
+    num_pages = post_paging.num_pages
+
+    if request.method != "PUT":
+        # Get current page
+        if request.method == "GET":
+            page_number = 1
+        elif request.method == "POST":
+            data = json.loads(request.body)
+            page_number = data.get('page_number')
         
-        return JsonResponse({"info": user_info.serialize(), "posts": [post.serialize() for post in posts]}, safe=False)
-    
+        current_page = post_paging.get_page(page_number)
+        flg_previous = current_page.has_previous()
+        flg_next = current_page.has_next()
+
+        # Return based on flg
+        if flg_previous == True:
+            previous_number = current_page.previous_page_number()
+        else:
+            previous_number = None
+            
+        if flg_next == True:
+            next_number = current_page.next_page_number()
+        else:
+            next_number = None
+
+        paging_info = {
+            "pages": num_pages,
+            "current": page_number,
+            "flg_previous": flg_previous, 
+            "previous_number": previous_number,
+            "flg_next": flg_next,
+            "next_number": next_number
+            }
+        
+        return JsonResponse({"info": user_info.serialize(), "paging_info": paging_info, "posts": [contact.serialize() for contact in current_page]}, safe=False)
+        
     if request.method == "PUT":
         
         # Get request user info
@@ -171,8 +203,6 @@ def user_info(request, username):
         request_user_info.save()
         return HttpResponse(status=204)
     
-    else:
-        return JsonResponse({"error": "GET or PUT request required"}, status=400)
 
 
 def login_view(request):
